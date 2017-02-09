@@ -6,7 +6,7 @@ access to the VPN via the proxy.
 
 Example usage:
 ```
-# docker run -it -p 8123:8123 -v /tmp/oc.pw:/tmp/oc.pw -e OPENCONNECT_PASSWORD_FILE=/tmp/oc.pw -e OPENCONNECT_USERNAME=oc_user -e OPENCONNECT_GROUP=oc_group -e OPENCONNECT_HOST=vpn.example.com -e PROXY_USERNAME=puser -e PROXY_PASSWORD=secret
+# docker run -it -p 8123:8123 -v /tmp/oc.pw:/tmp/oc.pw -e OPENCONNECT_PASSWORD_FILE=/tmp/oc.pw -e OPENCONNECT_USERNAME=oc_user -e OPENCONNECT_GROUP=oc_group -e OPENCONNECT_HOST=vpn.example.com -e PROXY_USERNAME=puser -e PROXY_PASSWORD=secret quay.io/wtsi-hgi/openconnect-proxy
 ```
 
 Substitute the real values for your AnyConnect VPN credentials in place of oc_user, oc_group, and vpn.example.com; and create a file (in this case `/tmp/oc.pw`) containing the associated password.
