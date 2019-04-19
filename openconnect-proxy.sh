@@ -30,4 +30,8 @@ else
     exit 2
 fi
 
-cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} -g ${OPENCONNECT_GROUP} --passwd-on-stdin --non-inter ${OPENCONNECT_HOST}
+if [[ -n "${OPENCONNECT_GROUP:-}" ]]; then
+    cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} -g ${OPENCONNECT_GROUP} --passwd-on-stdin --non-inter ${OPENCONNECT_HOST}
+else
+    cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} --passwd-on-stdin --non-inter ${OPENCONNECT_HOST}
+fi
