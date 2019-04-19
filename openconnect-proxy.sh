@@ -2,7 +2,13 @@
 
 set -euf -o pipefail
 
-polipo proxyAddress=0.0.0.0 proxyPort=8123 socksParentProxy=localhost:11080 authCredentials=${PROXY_USERNAME}:${PROXY_PASSWORD} &
+if [[ (-n "${PROXY_USERNAME:-}") && (-n "${PROXY_PASSWORD:-}")  ]]; then
+    echo "Setting up polipo with authentication ..."
+    polipo proxyAddress=0.0.0.0 proxyPort=8123 socksParentProxy=localhost:11080 authCredentials=${PROXY_USERNAME}:${PROXY_PASSWORD} &
+else
+    echo "Setting up polipo without authentication ..."
+    polipo proxyAddress=0.0.0.0 proxyPort=8123 socksParentProxy=localhost:11080 &
+fi
 
 TMP_PASSWORD_FILE=$(mktemp)
 if [[ -n "${OPENCONNECT_PASSWORD:-}" ]]; then
