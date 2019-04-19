@@ -2,7 +2,13 @@
 
 set -euf -o pipefail
 
-polipo proxyAddress=0.0.0.0 proxyPort=8123 socksParentProxy=localhost:11080 authCredentials=${PROXY_USERNAME}:${PROXY_PASSWORD} &
+if [[ (-n "${PROXY_USERNAME:-}") && (-n "${PROXY_PASSWORD:-}")  ]]; then
+    echo "Setting up polipo with authentication ..."
+    polipo proxyAddress=0.0.0.0 proxyPort=8123 socksParentProxy=localhost:11080 authCredentials=${PROXY_USERNAME}:${PROXY_PASSWORD} &
+else
+    echo "Setting up polipo without authentication ..."
+    polipo proxyAddress=0.0.0.0 proxyPort=8123 socksParentProxy=localhost:11080 &
+fi
 
 TMP_PASSWORD_FILE=$(mktemp)
 if [[ -n "${OPENCONNECT_PASSWORD:-}" ]]; then
@@ -24,4 +30,16 @@ else
     exit 2
 fi
 
-cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} -g ${OPENCONNECT_GROUP} --passwd-on-stdin --non-inter ${OPENCONNECT_HOST}
+if [[ -n "${OPENCONNECT_GROUP:-}" ]]; then
+    if [[ (-n "${OPENCONNECT_NO_CERT_CHECK:-}") && ("$OPENCONNECT_NO_CERT_CHECK" = true) ]] ; then
+        cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} -g ${OPENCONNECT_GROUP} --passwd-on-stdin --non-inter --no-cert-check ${OPENCONNECT_HOST}
+    else
+        cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} -g ${OPENCONNECT_GROUP} --passwd-on-stdin --non-inter ${OPENCONNECT_HOST}
+    fi
+else
+    if [[ (-n "${OPENCONNECT_NO_CERT_CHECK:-}") && ("$OPENCONNECT_NO_CERT_CHECK" = true) ]] ; then
+        cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} --passwd-on-stdin --non-inter --no-cert-check ${OPENCONNECT_HOST}
+    else
+        cat "${TMP_PASSWORD_FILE}" | openconnect --script-tun --script "ocproxy -D 11080" -u ${OPENCONNECT_USERNAME} --passwd-on-stdin --non-inter ${OPENCONNECT_HOST}
+    fi
+fi
